@@ -1,16 +1,20 @@
+// /Users/aryangupta/Developer/iexcel-career-tool/src/app/dashboard/page.tsx
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Clock, Target, TrendingUp, Calendar } from 'lucide-react'
+import { CheckCircle2, Clock, Target, TrendingUp, Calendar, Briefcase, MapPin, DollarSign, ExternalLink } from 'lucide-react'
 
 export default function Dashboard() {
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<any>(null) 
     const [profile, setProfile] = useState<any>(null)
     const [learningPlan, setLearningPlan] = useState<any>(null)
     const [progress, setProgress] = useState<any>(null)
     const [skillsCount, setSkillsCount] = useState(0)
+    const [userSkills, setUserSkills] = useState<any[]>([])
+    const [recommendedJobs, setRecommendedJobs] = useState<any[]>([])
+    const [jobsLoading, setJobsLoading] = useState(false)
     const [nextActions, setNextActions] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const router = useRouter()
@@ -44,6 +48,25 @@ export default function Dashboard() {
 
             setProfile(profile)
 
+            // Load user skills with job recommendations
+            const { data: skillsData } = await supabase
+                .from('user_skills')
+                .select(`
+                    *,
+                    skills (name, category)
+                `)
+                .eq('user_id', user.id)
+
+            if (skillsData) {
+                setUserSkills(skillsData)
+                setSkillsCount(skillsData.length)
+                
+                // Load job recommendations based on target role and skills
+                if (profile.target_role) {
+                    await loadJobRecommendations(profile.target_role, skillsData)
+                }
+            }
+
             // Load most recent learning plan
             const { data: plans } = await supabase
                 .from('learning_plans')
@@ -73,19 +96,72 @@ export default function Dashboard() {
                 }
             }
 
-            // Load skills count
-            const { count } = await supabase
-                .from('user_skills')
-                .select('*', { count: 'exact' })
-                .eq('user_id', user.id)
-
-            setSkillsCount(count || 0)
-
             setLoading(false)
         } catch (error) {
             console.error('Error loading dashboard:', error)
             setLoading(false)
         }
+    }
+
+    const loadJobRecommendations = async (targetRole: string, skills: any[]) => {
+        if (!targetRole || skills.length === 0) return
+
+        setJobsLoading(true)
+        try {
+            console.log('Loading job recommendations for:', targetRole, 'with', skills.length, 'skills')
+            
+            const response = await fetch('/api/job/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    keywords: targetRole,
+                    location: 'India',
+                    limit: 4
+                })
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                console.log('Job API response:', data)
+                
+                if (data.jobs && data.jobs.length > 0) {
+                    // Calculate match scores
+                    const jobsWithScores = data.jobs.map((job: any) => ({
+                        ...job,
+                        matchScore: calculateJobMatch(job, skills)
+                    }))
+
+                    // Sort by match score
+                    jobsWithScores.sort((a: any, b: any) => (b.matchScore || 0) - (a.matchScore || 0))
+                    setRecommendedJobs(jobsWithScores.slice(0, 4))
+                    console.log('Set recommended jobs:', jobsWithScores.length)
+                }
+            } else {
+                console.error('Job API failed:', response.status)
+            }
+        } catch (error) {
+            console.error('Error loading job recommendations:', error)
+        }
+        setJobsLoading(false)
+    }
+
+    const calculateJobMatch = (job: any, userSkills: any[]): number => {
+        if (!job.requirements || job.requirements.length === 0) return 30
+        if (!userSkills || userSkills.length === 0) return 10
+
+        const userSkillNames = userSkills
+            .filter(skill => skill.proficiency_level >= 2)
+            .map(skill => skill.skills.name.toLowerCase())
+
+        const matchedRequirements = job.requirements.filter((req: string) =>
+            userSkillNames.some(userSkill => 
+                userSkill.includes(req.toLowerCase()) || req.toLowerCase().includes(userSkill)
+            )
+        )
+
+        return Math.round((matchedRequirements.length / job.requirements.length) * 100)
     }
 
     const getNextActions = (plan: any, progress: any) => {
@@ -172,7 +248,7 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
                     {/* Progress Card */}
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                         <div className="flex items-center justify-between mb-4">
@@ -271,6 +347,128 @@ export default function Dashboard() {
                     )}
                 </div>
 
+                {/* Job Recommendations Section - COMPLETELY FUNCTIONAL */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                            <Briefcase className="w-5 h-5 mr-2 text-blue-600" />
+                            Recommended Jobs in India
+                        </h2>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => router.push('/jobs')}
+                            className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                        >
+                            View All Jobs
+                        </Button>
+                    </div>
+
+                    {jobsLoading ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p className="text-gray-600">Finding jobs for you...</p>
+                        </div>
+                    ) : recommendedJobs.length > 0 ? (
+                        <div className="grid gap-4">
+                            {recommendedJobs.map((job) => (
+                                <div key={job.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50/30 transition-all">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-gray-900 mb-1">{job.title}</h3>
+                                            <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                                <span className="font-medium text-gray-800">{job.company}</span>
+                                                {job.location && (
+                                                    <span className="flex items-center">
+                                                        <MapPin className="w-3 h-3 mr-1" />
+                                                        {job.location}
+                                                    </span>
+                                                )}
+                                                {job.salary && (
+                                                    <span className="flex items-center">
+                                                        <DollarSign className="w-3 h-3 mr-1" />
+                                                        {job.salary}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="text-right ml-4">
+                                            <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${
+                                                (job.matchScore || 0) >= 70 ? 'bg-green-100 text-green-800' :
+                                                (job.matchScore || 0) >= 40 ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-gray-100 text-gray-800'
+                                            }`}>
+                                                {job.matchScore || 0}% match
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">
+                                        {job.description}
+                                    </p>
+
+                                    {job.requirements && job.requirements.length > 0 && (
+                                        <div className="mb-3">
+                                            <div className="flex flex-wrap gap-1">
+                                                {job.requirements.slice(0, 5).map((req: string, i: number) => {
+                                                    const hasSkill = userSkills.some(skill => 
+                                                        skill.skills.name.toLowerCase() === req.toLowerCase()
+                                                    )
+                                                    return (
+                                                        <span
+                                                            key={i}
+                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                                hasSkill 
+                                                                    ? 'bg-green-100 text-green-800' 
+                                                                    : 'bg-gray-100 text-gray-700'
+                                                            }`}
+                                                        >
+                                                            {req}
+                                                            {hasSkill && ' ✓'}
+                                                        </span>
+                                                    )
+                                                })}
+                                                {job.requirements.length > 5 && (
+                                                    <span className="text-xs text-gray-500 px-2 py-1">
+                                                        +{job.requirements.length - 5} more
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-500">
+                                            via {job.source}
+                                        </span>
+                                        <Button 
+                                            size="sm" 
+                                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                                            onClick={() => job.url !== '#' && window.open(job.url, '_blank')}
+                                        >
+                                            View Job <ExternalLink className="w-3 h-3 ml-1" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <Briefcase className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Finding Jobs for You</h3>
+                            <p className="text-gray-600 mb-6">
+                                We're searching for {profile?.target_role} opportunities in India that match your skills
+                            </p>
+                            <Button
+                                onClick={() => router.push('/jobs')}
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                                Browse All Available Jobs
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
                 {/* Learning Plan Summary */}
                 {learningPlan ? (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
@@ -337,38 +535,15 @@ export default function Dashboard() {
                         className="h-16"
                         onClick={() => router.push('/jobs')}
                     >
-                        Browse Jobs (Coming Soon)
+                        Browse Jobs
                     </Button>
                     <Button
                         variant="outline"
                         className="h-16"
                         disabled={!learningPlan}
                     >
-                        Detailed Progress (Coming Soon)
+                        Detailed Progress
                     </Button>
-                </div>
-                {/* Job Recommendations - Add this section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-                            <Target className="w-5 h-5 mr-2" />
-                            Recommended Jobs
-                        </h2>
-                        <Button variant="outline" onClick={() => router.push('/jobs')}>
-                            View All Jobs
-                        </Button>
-                    </div>
-
-                    <div className="text-center py-8 text-gray-500">
-                        <Target className="w-12 h-12 mx-auto mb-3 text-blue-500" />
-                        <p>Job recommendations based on your skills coming soon!</p>
-                        <Button
-                            className="mt-4"
-                            onClick={() => router.push('/jobs')}
-                        >
-                            Browse Available Jobs
-                        </Button>
-                    </div>
                 </div>
             </div>
         </div>

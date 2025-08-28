@@ -1,3 +1,4 @@
+// /Users/aryangupta/Developer/iexcel-career-tool/src/app/onboarding/page.tsx
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'

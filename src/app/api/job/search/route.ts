@@ -1,106 +1,186 @@
-///Users/aryangupta/Developer/iexcel-career-tool/src/app/api/job/search/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { callReedAPI, convertReedJobToJobPosting } from '@/lib/reed-api';
+import { fetchJSearchJobs, convertJSearchJobToJobPosting } from '@/lib/jsearch-api';
 
-import { NextRequest, NextResponse } from 'next/server'
-
-// Mock job data - in production, you'd integrate with Reed API, Indeed API, etc.
-const MOCK_JOBS = [
+// Enhanced mock data with Indian jobs
+const INDIAN_MOCK_JOBS = [
   {
-    id: 'job-1',
+    id: 'india-1',
+    title: 'Software Development Engineer',
+    company: 'TechMahindra',
+    location: 'Bangalore, Karnataka, India',
+    salary: '₹8,00,000 - ₹15,00,000',
+    description: 'Join our team as a Software Development Engineer working on cutting-edge web applications using React, Node.js, and cloud technologies. Great opportunity for career growth in a leading IT services company.',
+    url: '#',
+    source: 'Mock India',
+    postedDate: new Date().toISOString(),
+    requirements: ['React', 'Node.js', 'JavaScript', 'AWS', 'MongoDB', 'Express']
+  },
+  {
+    id: 'india-2', 
     title: 'Data Scientist',
-    company: 'TechCorp Ltd',
-    location: 'London, UK',
-    salary: '£60,000 - £80,000',
-    description: 'We are seeking a Data Scientist to join our analytics team. You will work with Python, SQL, and machine learning frameworks to analyze large datasets and build predictive models.',
-    url: 'https://example.com/jobs/data-scientist-1',
-    source: 'TechCorp',
+    company: 'Flipkart',
+    location: 'Mumbai, Maharashtra, India',
+    salary: '₹12,00,000 - ₹20,00,000',
+    description: 'Work with big data and machine learning algorithms to solve complex business problems. Use Python, SQL, TensorFlow, and cloud platforms to build scalable ML solutions for millions of users.',
+    url: '#',
+    source: 'Mock India',
     postedDate: new Date().toISOString(),
-    requirements: ['Python', 'SQL', 'Machine Learning', 'Pandas', 'Statistics']
+    requirements: ['Python', 'Machine Learning', 'SQL', 'TensorFlow', 'pandas', 'AWS', 'Spark']
   },
   {
-    id: 'job-2', 
-    title: 'Senior Data Analyst',
-    company: 'DataFlow Inc',
-    location: 'Manchester, UK',
-    salary: '£45,000 - £65,000',
-    description: 'Join our data team as a Senior Data Analyst. Use Python, SQL, and visualization tools like Tableau to derive insights from complex datasets.',
-    url: 'https://example.com/jobs/data-analyst-2',
-    source: 'DataFlow',
+    id: 'india-3',
+    title: 'Full Stack Developer',
+    company: 'Zomato',
+    location: 'Delhi, India',
+    salary: '₹10,00,000 - ₹18,00,000',
+    description: 'Build end-to-end web solutions using modern JavaScript frameworks. Work on high-traffic applications serving millions of food lovers across India.',
+    url: '#',
+    source: 'Mock India',
     postedDate: new Date().toISOString(),
-    requirements: ['Python', 'SQL', 'Tableau', 'Excel', 'Statistics']
+    requirements: ['React', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes']
   },
   {
-    id: 'job-3',
-    title: 'Machine Learning Engineer',
-    company: 'AI Solutions',
-    location: 'Edinburgh, UK',
-    salary: '£70,000 - £90,000',
-    description: 'We need a Machine Learning Engineer experienced with TensorFlow, PyTorch, and MLOps practices. You will deploy ML models at scale.',
-    url: 'https://example.com/jobs/ml-engineer-3',
-    source: 'AI Solutions',
+    id: 'india-4',
+    title: 'Frontend Developer',
+    company: 'Paytm',
+    location: 'Noida, UP, India',
+    salary: '₹6,00,000 - ₹12,00,000',
+    description: 'Create beautiful and responsive user interfaces for our fintech applications. Work with React, TypeScript, and modern frontend tools.',
+    url: '#',
+    source: 'Mock India', 
     postedDate: new Date().toISOString(),
-    requirements: ['Python', 'TensorFlow', 'PyTorch', 'Machine Learning', 'Docker', 'AWS']
+    requirements: ['React', 'TypeScript', 'JavaScript', 'CSS', 'HTML', 'Redux']
   },
   {
-    id: 'job-4',
-    title: 'Junior Data Scientist',
-    company: 'StartupCo',
-    location: 'Remote',
-    salary: '£35,000 - £45,000',
-    description: 'Entry-level position for a Data Scientist. We will train you in Python, SQL, and data analysis techniques.',
-    url: 'https://example.com/jobs/junior-ds-4',
-    source: 'StartupCo',
+    id: 'india-5',
+    title: 'DevOps Engineer',
+    company: 'Swiggy',
+    location: 'Bangalore, Karnataka, India',
+    salary: '₹15,00,000 - ₹25,00,000',
+    description: 'Lead our infrastructure automation and deployment processes. Work with Docker, Kubernetes, AWS, and CI/CD pipelines to ensure scalable food delivery operations.',
+    url: '#',
+    source: 'Mock India',
     postedDate: new Date().toISOString(),
-    requirements: ['Python', 'SQL', 'Statistics', 'Excel']
-  },
-  {
-    id: 'job-5',
-    title: 'Business Intelligence Analyst',
-    company: 'Corporate Solutions',
-    location: 'Birmingham, UK',
-    salary: '£40,000 - £55,000',
-    description: 'BI Analyst role requiring SQL, Power BI, and Excel skills. You will create dashboards and reports for executive team.',
-    url: 'https://example.com/jobs/bi-analyst-5',
-    source: 'Corporate Solutions',
-    postedDate: new Date().toISOString(),
-    requirements: ['SQL', 'Power BI', 'Excel', 'Tableau']
+    requirements: ['Docker', 'Kubernetes', 'AWS', 'Jenkins', 'Terraform', 'Python', 'Linux']
   }
-]
+];
+
+function isIndianLocation(location: string): boolean {
+  if (!location) return false;
+  const locationLower = location.toLowerCase();
+  return locationLower.includes('india') || 
+         locationLower.includes('bangalore') ||
+         locationLower.includes('mumbai') ||
+         locationLower.includes('delhi') ||
+         locationLower.includes('chennai') ||
+         locationLower.includes('hyderabad') ||
+         locationLower.includes('pune') ||
+         locationLower.includes('kolkata') ||
+         locationLower.includes('ahmedabad') ||
+         locationLower.includes('gurgaon') ||
+         locationLower.includes('noida');
+}
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 Job search API called');
+
   try {
-    const { keywords, location, limit } = await request.json()
+    const { keywords, location, limit } = await request.json();
 
-    console.log('Job search request:', { keywords, location, limit })
+    console.log('📝 Search params:', { keywords, location, limit });
 
-    // Filter jobs based on keywords
-    let filteredJobs = MOCK_JOBS.filter(job => 
-      job.title.toLowerCase().includes(keywords.toLowerCase()) ||
-      job.description.toLowerCase().includes(keywords.toLowerCase())
-    )
-
-    // If location specified, filter by location
-    if (location) {
-      filteredJobs = filteredJobs.filter(job =>
-        job.location.toLowerCase().includes(location.toLowerCase())
-      )
+    if (!keywords?.trim()) {
+      return NextResponse.json(
+        { error: 'Search keywords are required', success: false },
+        { status: 400 }
+      );
     }
 
-    // Limit results
-    const jobs = filteredJobs.slice(0, limit || 20)
+    const searchLocation = location?.trim() || '';
+    const isIndianSearch = isIndianLocation(searchLocation);
 
-    console.log(`Found ${jobs.length} jobs for "${keywords}"`)
+    console.log('🌍 Is Indian location:', isIndianSearch);
 
-    return NextResponse.json({ 
-      jobs,
-      total: jobs.length,
-      success: true 
-    })
+    if (isIndianSearch) {
+      // Use JSearch API for Indian jobs
+      console.log('🇮🇳 Using JSearch API for Indian jobs...');
+      
+      const jsearchJobs = await fetchJSearchJobs(keywords.trim(), searchLocation, limit || 20);
+      
+      if (jsearchJobs && jsearchJobs.length > 0) {
+        console.log(`✅ JSearch API success: ${jsearchJobs.length} Indian jobs found`);
+        
+        const transformedJobs = jsearchJobs.map(convertJSearchJobToJobPosting);
+        
+        return NextResponse.json({
+          jobs: transformedJobs.slice(0, limit || 20),
+          total: transformedJobs.length,
+          source: 'jsearch-india',
+          success: true
+        });
+      }
+
+      // Fallback to Indian mock data
+      console.log('⚠️ JSearch API returned no results, using Indian mock data');
+      
+      const keywordsLower = keywords.toLowerCase();
+      let filteredIndianJobs = INDIAN_MOCK_JOBS.filter(job =>
+        job.title.toLowerCase().includes(keywordsLower) ||
+        job.description.toLowerCase().includes(keywordsLower) ||
+        job.requirements.some(req => req.toLowerCase().includes(keywordsLower))
+      );
+
+      if (searchLocation) {
+        const locationLower = searchLocation.toLowerCase();
+        filteredIndianJobs = filteredIndianJobs.filter(job =>
+          job.location.toLowerCase().includes(locationLower)
+        );
+      }
+
+      return NextResponse.json({
+        jobs: filteredIndianJobs.slice(0, limit || 20),
+        total: filteredIndianJobs.length,
+        source: 'indian-mock',
+        success: true
+      });
+
+    } else {
+      // Use Reed API for UK/other locations
+      console.log('🇬🇧 Using Reed API for UK jobs...');
+      
+      const reedJobs = await callReedAPI(keywords.trim(), searchLocation, limit || 20);
+      
+      if (reedJobs && reedJobs.length > 0) {
+        console.log(`✅ Reed API success: ${reedJobs.length} UK jobs found`);
+        
+        const transformedJobs = reedJobs.map(convertReedJobToJobPosting);
+        
+        return NextResponse.json({
+          jobs: transformedJobs,
+          total: transformedJobs.length,
+          source: 'reed-uk',
+          success: true
+        });
+      }
+
+      // Fallback for non-Indian locations
+      return NextResponse.json({
+        jobs: [],
+        total: 0,
+        source: 'no-results',
+        message: 'No jobs found. Try searching for Indian cities like Bangalore, Mumbai, Delhi.',
+        success: true
+      });
+    }
 
   } catch (error) {
-    console.error('Error in jobs search API:', error)
-    return NextResponse.json(
-      { error: 'Failed to search jobs', success: false },
-      { status: 500 }
-    )
+    console.error('❌ Job search API error:', error);
+    
+    return NextResponse.json({
+      error: 'Failed to search jobs',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      success: false
+    }, { status: 500 });
   }
 }

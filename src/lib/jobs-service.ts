@@ -1,4 +1,4 @@
-// /Users/aryangupta/Developer/iexcel-career-tool/src/lib/jobs-service.ts
+// REPLACE /src/lib/jobs-service.ts with this (URL fix on line 20):
 
 export interface JobPosting {
   id: string
@@ -20,7 +20,8 @@ export async function searchJobs(
   limit: number = 20
 ): Promise<JobPosting[]> {
   try {
-    const response = await fetch('/api/jobs/search', {
+    // FIX: Changed '/api/jobs/search' to '/api/job/search' (singular)
+    const response = await fetch('/api/job/search', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
