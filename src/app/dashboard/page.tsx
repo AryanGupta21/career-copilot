@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Clock, Target, TrendingUp, Calendar, Briefcase, MapPin, DollarSign, ExternalLink } from 'lucide-react'
+import AnalyticsDashboard from '@/components/analytics-dashboard'
+import { CheckCircle2, Clock, Target, TrendingUp, Calendar, Briefcase, MapPin, DollarSign, ExternalLink, BarChart3 } from 'lucide-react'
 
 export default function Dashboard() {
-    const [user, setUser] = useState<any>(null) 
+    const [user, setUser] = useState<any>(null)
     const [profile, setProfile] = useState<any>(null)
     const [learningPlan, setLearningPlan] = useState<any>(null)
     const [progress, setProgress] = useState<any>(null)
@@ -60,7 +61,7 @@ export default function Dashboard() {
             if (skillsData) {
                 setUserSkills(skillsData)
                 setSkillsCount(skillsData.length)
-                
+
                 // Load job recommendations based on target role and skills
                 if (profile.target_role) {
                     await loadJobRecommendations(profile.target_role, skillsData)
@@ -109,7 +110,7 @@ export default function Dashboard() {
         setJobsLoading(true)
         try {
             console.log('Loading job recommendations for:', targetRole, 'with', skills.length, 'skills')
-            
+
             const response = await fetch('/api/job/search', {
                 method: 'POST',
                 headers: {
@@ -125,7 +126,7 @@ export default function Dashboard() {
             if (response.ok) {
                 const data = await response.json()
                 console.log('Job API response:', data)
-                
+
                 if (data.jobs && data.jobs.length > 0) {
                     // Calculate match scores
                     const jobsWithScores = data.jobs.map((job: any) => ({
@@ -156,7 +157,7 @@ export default function Dashboard() {
             .map(skill => skill.skills.name.toLowerCase())
 
         const matchedRequirements = job.requirements.filter((req: string) =>
-            userSkillNames.some(userSkill => 
+            userSkillNames.some(userSkill =>
                 userSkill.includes(req.toLowerCase()) || req.toLowerCase().includes(userSkill)
             )
         )
@@ -354,8 +355,8 @@ export default function Dashboard() {
                             <Briefcase className="w-5 h-5 mr-2 text-blue-600" />
                             Recommended Jobs in India
                         </h2>
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             onClick={() => router.push('/jobs')}
                             className="text-blue-600 border-blue-600 hover:bg-blue-50"
                         >
@@ -391,13 +392,12 @@ export default function Dashboard() {
                                                 )}
                                             </div>
                                         </div>
-                                        
+
                                         <div className="text-right ml-4">
-                                            <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${
-                                                (job.matchScore || 0) >= 70 ? 'bg-green-100 text-green-800' :
-                                                (job.matchScore || 0) >= 40 ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-gray-100 text-gray-800'
-                                            }`}>
+                                            <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${(job.matchScore || 0) >= 70 ? 'bg-green-100 text-green-800' :
+                                                    (job.matchScore || 0) >= 40 ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-gray-100 text-gray-800'
+                                                }`}>
                                                 {job.matchScore || 0}% match
                                             </div>
                                         </div>
@@ -411,17 +411,16 @@ export default function Dashboard() {
                                         <div className="mb-3">
                                             <div className="flex flex-wrap gap-1">
                                                 {job.requirements.slice(0, 5).map((req: string, i: number) => {
-                                                    const hasSkill = userSkills.some(skill => 
+                                                    const hasSkill = userSkills.some(skill =>
                                                         skill.skills.name.toLowerCase() === req.toLowerCase()
                                                     )
                                                     return (
                                                         <span
                                                             key={i}
-                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                                hasSkill 
-                                                                    ? 'bg-green-100 text-green-800' 
+                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${hasSkill
+                                                                    ? 'bg-green-100 text-green-800'
                                                                     : 'bg-gray-100 text-gray-700'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             {req}
                                                             {hasSkill && ' ✓'}
@@ -441,8 +440,8 @@ export default function Dashboard() {
                                         <span className="text-xs text-gray-500">
                                             via {job.source}
                                         </span>
-                                        <Button 
-                                            size="sm" 
+                                        <Button
+                                            size="sm"
                                             className="bg-blue-600 hover:bg-blue-700 text-white"
                                             onClick={() => job.url !== '#' && window.open(job.url, '_blank')}
                                         >
@@ -545,6 +544,15 @@ export default function Dashboard() {
                         Detailed Progress
                     </Button>
                 </div>
+                {/* Enhanced Analytics Section */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <BarChart3 className="w-5 h-5 mr-2" />
+                        Your Learning Analytics
+                    </h2>
+                    <AnalyticsDashboard userId={user?.id} planId={learningPlan?.id} />
+                </div>
+
             </div>
         </div>
     )
