@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import AnalyticsDashboard from '@/components/analytics-dashboard'
-import { CheckCircle2, Clock, Target, TrendingUp, Calendar, Briefcase, MapPin, DollarSign, ExternalLink, BarChart3 } from 'lucide-react'
+import { CheckCircle2, Clock, Target, TrendingUp, Calendar, Briefcase, MapPin, DollarSign, ExternalLink, BarChart3, Award, Zap, BookOpen, Flame, ArrowRight } from 'lucide-react'
 
 export default function Dashboard() {
     const [user, setUser] = useState<any>(null)
@@ -35,7 +35,6 @@ export default function Dashboard() {
 
             setUser(user)
 
-            // Load user profile
             const { data: profile } = await supabase
                 .from('user_profiles')
                 .select('*')
@@ -49,7 +48,6 @@ export default function Dashboard() {
 
             setProfile(profile)
 
-            // Load user skills with job recommendations
             const { data: skillsData } = await supabase
                 .from('user_skills')
                 .select(`
@@ -62,13 +60,11 @@ export default function Dashboard() {
                 setUserSkills(skillsData)
                 setSkillsCount(skillsData.length)
 
-                // Load job recommendations based on target role and skills
                 if (profile.target_role) {
                     await loadJobRecommendations(profile.target_role, skillsData)
                 }
             }
 
-            // Load most recent learning plan
             const { data: plans } = await supabase
                 .from('learning_plans')
                 .select('*')
@@ -79,7 +75,6 @@ export default function Dashboard() {
             const plan = plans && plans.length > 0 ? plans[0] : null
             setLearningPlan(plan)
 
-            // Load progress
             if (plan) {
                 const { data: progressData } = await supabase
                     .from('user_progress')
@@ -90,7 +85,6 @@ export default function Dashboard() {
 
                 setProgress(progressData)
 
-                // Calculate next actions
                 if (progressData && plan.plan_data) {
                     const actions = getNextActions(plan, progressData)
                     setNextActions(actions)
@@ -109,8 +103,6 @@ export default function Dashboard() {
 
         setJobsLoading(true)
         try {
-            console.log('Loading job recommendations for:', targetRole, 'with', skills.length, 'skills')
-
             const response = await fetch('/api/job/search', {
                 method: 'POST',
                 headers: {
@@ -125,22 +117,16 @@ export default function Dashboard() {
 
             if (response.ok) {
                 const data = await response.json()
-                console.log('Job API response:', data)
 
                 if (data.jobs && data.jobs.length > 0) {
-                    // Calculate match scores
                     const jobsWithScores = data.jobs.map((job: any) => ({
                         ...job,
                         matchScore: calculateJobMatch(job, skills)
                     }))
 
-                    // Sort by match score
                     jobsWithScores.sort((a: any, b: any) => (b.matchScore || 0) - (a.matchScore || 0))
                     setRecommendedJobs(jobsWithScores.slice(0, 4))
-                    console.log('Set recommended jobs:', jobsWithScores.length)
                 }
-            } else {
-                console.error('Job API failed:', response.status)
             }
         } catch (error) {
             console.error('Error loading job recommendations:', error)
@@ -213,7 +199,7 @@ export default function Dashboard() {
                 .eq('id', progress.id)
 
             if (!error) {
-                loadDashboardData() // Reload to update UI
+                loadDashboardData()
             }
         } catch (error) {
             console.error('Error updating task:', error)
@@ -227,8 +213,8 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-                <div className="text-gray-600">Loading your dashboard...</div>
+            <div className="min-h-screen bg-[#f5f5f0] flex justify-center items-center">
+                <div className="text-gray-600 text-lg">Loading your dashboard...</div>
             </div>
         )
     }
@@ -236,132 +222,196 @@ export default function Dashboard() {
     const overallProgress = progress?.overall_completion_percentage || 0
     const completedTasks = progress?.completed_tasks?.length || 0
     const currentWeek = learningPlan ? getCurrentWeek(learningPlan) : 1
+    const studyHoursThisWeek = 0
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-6xl mx-auto p-6">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Welcome back, {profile?.full_name?.split(' ')[0]}! 👋
-                    </h1>
-                    <p className="text-gray-600">
-                        You're on your way to becoming a {profile?.target_role}
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
-                    {/* Progress Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-900">Progress</h3>
-                            <TrendingUp className="w-5 h-5 text-blue-600" />
+        <div className="min-h-screen bg-[#f5f5f0]">
+            <div className="max-w-7xl mx-auto p-6 sm:p-8">
+                {/* Hero Header - Combines greeting and key stats */}
+                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-6">
+                            <div>
+                                <h1 className="text-4xl font-bold mb-2">
+                                    Welcome back, {profile?.full_name?.split(' ')[0]}! 👋
+                                </h1>
+                                <p className="text-gray-300 text-lg">
+                                    You're on track to becoming a <span className="text-blue-400 font-semibold">{profile?.target_role}</span>
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => router.push('/plan')}
+                                className="px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
+                            >
+                                View Full Plan
+                            </button>
                         </div>
-                        <div className="text-3xl font-bold text-blue-600 mb-2">{overallProgress}%</div>
-                        {/* Simple Progress Bar */}
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                            <div
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${overallProgress}%` }}
-                            />
-                        </div>
-                        <p className="text-sm text-gray-600">
-                            {learningPlan ? `Week ${currentWeek} of ${learningPlan.duration_weeks}` : 'Overall completion'}
-                        </p>
-                    </div>
 
-                    {/* This Week Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-900">This Week</h3>
-                            <Calendar className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div className="text-3xl font-bold text-green-600 mb-2">0h</div>
-                        <p className="text-sm text-gray-600">of {profile?.study_hours_per_week}h goal</p>
-                    </div>
-
-                    {/* Tasks Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-900">Tasks Done</h3>
-                            <CheckCircle2 className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <div className="text-3xl font-bold text-purple-600 mb-2">{completedTasks}</div>
-                        <p className="text-sm text-gray-600">tasks completed</p>
-                    </div>
-
-                    {/* Skills Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-semibold text-gray-900">Skills</h3>
-                            <Target className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <div className="text-3xl font-bold text-orange-600 mb-2">{skillsCount}</div>
-                        <p className="text-sm text-gray-600">skills added</p>
-                    </div>
-                </div>
-
-                {/* Next Actions */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <Clock className="w-5 h-5 mr-2" />
-                        Your Next 3 Actions
-                    </h2>
-
-                    {nextActions.length > 0 ? (
-                        <div className="space-y-4">
-                            {nextActions.map((action, index) => (
-                                <div key={action.id} className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                        {index + 1}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="font-medium text-gray-900">{action.title}</h3>
-                                        <p className="text-sm text-gray-600 mt-1">{action.description}</p>
-                                        <div className="flex items-center space-x-2 mt-2">
-                                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                                Week {action.week}
-                                            </span>
-                                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                                {action.estimatedHours}h
-                                            </span>
-                                            <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                                                {action.type}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        size="sm"
-                                        onClick={() => markTaskComplete(action.id)}
-                                        className="bg-green-600 hover:bg-green-700"
-                                    >
-                                        Mark Complete
-                                    </Button>
+                        {/* Inline Stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                    <TrendingUp className="w-6 h-6 text-blue-400" />
                                 </div>
-                            ))}
+                                <div>
+                                    <div className="text-3xl font-bold">{overallProgress}%</div>
+                                    <div className="text-gray-400 text-sm">Overall Progress</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                                    <Calendar className="w-6 h-6 text-green-400" />
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold">{studyHoursThisWeek}h</div>
+                                    <div className="text-gray-400 text-sm">This Week</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                                    <CheckCircle2 className="w-6 h-6 text-purple-400" />
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold">{completedTasks}</div>
+                                    <div className="text-gray-400 text-sm">Tasks Done</div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                                    <Award className="w-6 h-6 text-orange-400" />
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold">{skillsCount}</div>
+                                    <div className="text-gray-400 text-sm">Skills Mastered</div>
+                                </div>
+                            </div>
                         </div>
-                    ) : (
-                        <div className="text-center py-8 text-gray-500">
-                            <CheckCircle2 className="w-12 h-12 mx-auto mb-3 text-green-500" />
-                            <p>Great job! You're all caught up.</p>
-                            <p className="text-sm">Check your learning plan for more tasks.</p>
+
+                        {/* Progress Bar */}
+                        <div className="mt-6">
+                            <div className="flex justify-between text-sm mb-2">
+                                <span className="text-gray-300">Learning Journey</span>
+                                <span className="text-gray-300">Week {currentWeek} of {learningPlan?.duration_weeks || 12}</span>
+                            </div>
+                            <div className="w-full bg-gray-700 rounded-full h-3">
+                                <div
+                                    className="bg-gradient-to-r from-blue-400 to-purple-400 h-3 rounded-full transition-all duration-700"
+                                    style={{ width: `${overallProgress}%` }}
+                                />
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
 
-                {/* Job Recommendations Section - COMPLETELY FUNCTIONAL */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-                            <Briefcase className="w-5 h-5 mr-2 text-blue-600" />
-                            Recommended Jobs in India
-                        </h2>
-                        <Button
-                            variant="outline"
-                            onClick={() => router.push('/jobs')}
-                            className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                {/* Bento Grid Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    
+                    {/* Next Actions - Takes 2 columns */}
+                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <Zap className="w-5 h-5 text-yellow-500" />
+                                Your Next Actions
+                            </h2>
+                            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">
+                                Week {currentWeek}
+                            </span>
+                        </div>
+
+                        {nextActions.length > 0 ? (
+                            <div className="space-y-3">
+                                {nextActions.map((action, index) => (
+                                    <div 
+                                        key={action.id}
+                                        className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors group"
+                                    >
+                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0">
+                                            {index + 1}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
+                                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                <span className="flex items-center gap-1">
+                                                    <Clock className="w-3 h-3" />
+                                                    {action.estimatedHours}h
+                                                </span>
+                                                <span>•</span>
+                                                <span>{action.type}</span>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            onClick={() => markTaskComplete(action.id)}
+                                            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            Complete
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <CheckCircle2 className="w-12 h-12 mx-auto mb-3 text-green-500" />
+                                <p className="text-gray-600 font-medium">Great job! You're all caught up.</p>
+                            </div>
+                        )}
+
+                        <button 
+                            onClick={() => router.push('/plan')}
+                            className="w-full mt-4 py-3 text-gray-600 hover:text-gray-900 font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-50 rounded-lg transition-colors"
                         >
-                            View All Jobs
-                        </Button>
+                            View All Tasks
+                            <ArrowRight className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    {/* Study Streak - Compact card */}
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-xl border border-orange-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-semibold text-gray-900">Study Streak</h3>
+                            <Flame className="w-6 h-6 text-orange-500" />
+                        </div>
+                        
+                        <div className="text-center my-6">
+                            <div className="text-6xl font-bold text-orange-600 mb-2">0</div>
+                            <div className="text-gray-600 text-sm">days • longest: 0</div>
+                        </div>
+
+                        <div className="bg-white rounded-xl p-4 border border-orange-200">
+                            <div className="text-sm text-gray-700 mb-2">This Week's Goal</div>
+                            <div className="flex items-center justify-between">
+                                <div className="text-2xl font-bold text-gray-900">{studyHoursThisWeek}h</div>
+                                <div className="text-sm text-gray-500">of {profile?.study_hours_per_week}h</div>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div
+                                    className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full"
+                                    style={{ width: `${profile?.study_hours_per_week ? (studyHoursThisWeek / profile.study_hours_per_week) * 100 : 0}%` }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Job Recommendations */}
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                            <Briefcase className="w-5 h-5 text-green-600" />
+                            Jobs Matching Your Skills
+                        </h2>
+                        <button 
+                            onClick={() => router.push('/jobs')}
+                            className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm flex items-center gap-2"
+                        >
+                            View All
+                            <ArrowRight className="w-4 h-4" />
+                        </button>
                     </div>
 
                     {jobsLoading ? (
@@ -370,84 +420,59 @@ export default function Dashboard() {
                             <p className="text-gray-600">Finding jobs for you...</p>
                         </div>
                     ) : recommendedJobs.length > 0 ? (
-                        <div className="grid gap-4">
+                        <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 lg:grid lg:grid-cols-2 lg:overflow-visible">
                             {recommendedJobs.map((job) => (
-                                <div key={job.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50/30 transition-all">
+                                <div key={job.id} className="min-w-[320px] lg:min-w-0 border-2 border-gray-100 rounded-xl p-5 hover:border-blue-200 hover:shadow-md transition-all">
                                     <div className="flex justify-between items-start mb-3">
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-900 mb-1">{job.title}</h3>
-                                            <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                                                <span className="font-medium text-gray-800">{job.company}</span>
+                                        <div>
+                                            <h3 className="font-bold text-gray-900 mb-1">{job.title}</h3>
+                                            <div className="text-sm text-gray-600 flex items-center gap-2">
+                                                <span className="font-medium">{job.company}</span>
                                                 {job.location && (
-                                                    <span className="flex items-center">
-                                                        <MapPin className="w-3 h-3 mr-1" />
-                                                        {job.location}
-                                                    </span>
-                                                )}
-                                                {job.salary && (
-                                                    <span className="flex items-center">
-                                                        <DollarSign className="w-3 h-3 mr-1" />
-                                                        {job.salary}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="text-right ml-4">
-                                            <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${(job.matchScore || 0) >= 70 ? 'bg-green-100 text-green-800' :
-                                                    (job.matchScore || 0) >= 40 ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                {job.matchScore || 0}% match
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-                                        {job.description}
-                                    </p>
-
-                                    {job.requirements && job.requirements.length > 0 && (
-                                        <div className="mb-3">
-                                            <div className="flex flex-wrap gap-1">
-                                                {job.requirements.slice(0, 5).map((req: string, i: number) => {
-                                                    const hasSkill = userSkills.some(skill =>
-                                                        skill.skills.name.toLowerCase() === req.toLowerCase()
-                                                    )
-                                                    return (
-                                                        <span
-                                                            key={i}
-                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${hasSkill
-                                                                    ? 'bg-green-100 text-green-800'
-                                                                    : 'bg-gray-100 text-gray-700'
-                                                                }`}
-                                                        >
-                                                            {req}
-                                                            {hasSkill && ' ✓'}
+                                                    <>
+                                                        <span>•</span>
+                                                        <span className="flex items-center gap-1">
+                                                            <MapPin className="w-3 h-3" />
+                                                            {job.location}
                                                         </span>
-                                                    )
-                                                })}
-                                                {job.requirements.length > 5 && (
-                                                    <span className="text-xs text-gray-500 px-2 py-1">
-                                                        +{job.requirements.length - 5} more
-                                                    </span>
+                                                    </>
                                                 )}
                                             </div>
                                         </div>
-                                    )}
-
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xs text-gray-500">
-                                            via {job.source}
-                                        </span>
-                                        <Button
-                                            size="sm"
-                                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                                            onClick={() => job.url !== '#' && window.open(job.url, '_blank')}
-                                        >
-                                            View Job <ExternalLink className="w-3 h-3 ml-1" />
-                                        </Button>
+                                        <div className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${
+                                            (job.matchScore || 0) >= 70 ? 'bg-green-100 text-green-800' :
+                                            (job.matchScore || 0) >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-gray-100 text-gray-800'
+                                        }`}>
+                                            {job.matchScore || 0}% match
+                                        </div>
                                     </div>
+                                    
+                                    <div className="flex flex-wrap gap-1 mb-4">
+                                        {job.requirements?.slice(0, 5).map((req: string, i: number) => {
+                                            const hasSkill = userSkills.some(skill =>
+                                                skill.skills.name.toLowerCase() === req.toLowerCase()
+                                            )
+                                            return (
+                                                <span 
+                                                    key={i}
+                                                    className={`px-2 py-1 rounded text-xs font-medium ${
+                                                        hasSkill ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'
+                                                    }`}
+                                                >
+                                                    {req} {hasSkill && '✓'}
+                                                </span>
+                                            )
+                                        })}
+                                    </div>
+
+                                    <button 
+                                        onClick={() => job.url !== '#' && window.open(job.url, '_blank')}
+                                        className="w-full py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2"
+                                    >
+                                        View Details
+                                        <ExternalLink className="w-3 h-3" />
+                                    </button>
                                 </div>
                             ))}
                         </div>
@@ -456,103 +481,91 @@ export default function Dashboard() {
                             <Briefcase className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">Finding Jobs for You</h3>
                             <p className="text-gray-600 mb-6">
-                                We're searching for {profile?.target_role} opportunities in India that match your skills
+                                We're searching for {profile?.target_role} opportunities
                             </p>
-                            <Button
+                            <button
                                 onClick={() => router.push('/jobs')}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg"
                             >
-                                Browse All Available Jobs
-                            </Button>
+                                Browse All Jobs
+                            </button>
                         </div>
                     )}
                 </div>
 
                 {/* Learning Plan Summary */}
-                {learningPlan ? (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                        <div className="flex justify-between items-start mb-4">
+                {learningPlan && (
+                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
+                        <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h2 className="text-xl font-semibold text-gray-900">{learningPlan.title}</h2>
-                                <p className="text-gray-600 mt-1">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">{learningPlan.title}</h2>
+                                <p className="text-gray-600">
                                     {learningPlan.plan_data?.overview || 'Your personalized learning journey'}
                                 </p>
                             </div>
-                            <Button onClick={() => router.push('/plan')}>
+                            <button
+                                onClick={() => router.push('/plan')}
+                                className="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors"
+                            >
                                 View Full Plan
-                            </Button>
+                            </button>
                         </div>
 
                         <div className="grid md:grid-cols-4 gap-4">
-                            <div className="text-center bg-blue-50 rounded-lg p-3">
-                                <div className="text-2xl font-bold text-blue-600">{learningPlan.duration_weeks}</div>
-                                <div className="text-sm text-gray-600">Weeks</div>
+                            <div className="text-center bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                <div className="text-3xl font-bold text-blue-600 mb-1">{learningPlan.duration_weeks}</div>
+                                <div className="text-sm text-gray-600 font-medium">Weeks</div>
                             </div>
-                            <div className="text-center bg-green-50 rounded-lg p-3">
-                                <div className="text-2xl font-bold text-green-600">{learningPlan.total_hours}</div>
-                                <div className="text-sm text-gray-600">Total Hours</div>
+                            <div className="text-center bg-green-50 rounded-xl p-4 border border-green-100">
+                                <div className="text-3xl font-bold text-green-600 mb-1">{learningPlan.total_hours}</div>
+                                <div className="text-sm text-gray-600 font-medium">Total Hours</div>
                             </div>
-                            <div className="text-center bg-purple-50 rounded-lg p-3">
-                                <div className="text-2xl font-bold text-purple-600">{completedTasks}</div>
-                                <div className="text-sm text-gray-600">Tasks Done</div>
+                            <div className="text-center bg-purple-50 rounded-xl p-4 border border-purple-100">
+                                <div className="text-3xl font-bold text-purple-600 mb-1">{completedTasks}</div>
+                                <div className="text-sm text-gray-600 font-medium">Tasks Done</div>
                             </div>
-                            <div className="text-center bg-orange-50 rounded-lg p-3">
-                                <div className="text-2xl font-bold text-orange-600">{currentWeek}</div>
-                                <div className="text-sm text-gray-600">Current Week</div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Get Started</h2>
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-100">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-medium text-gray-900 mb-2">Complete Skills Assessment</h3>
-                                    <p className="text-gray-600">Add your current skills to get personalized recommendations</p>
-                                </div>
-                                <Button onClick={() => router.push('/onboarding')}>
-                                    Start Now
-                                </Button>
+                            <div className="text-center bg-orange-50 rounded-xl p-4 border border-orange-100">
+                                <div className="text-3xl font-bold text-orange-600 mb-1">{currentWeek}</div>
+                                <div className="text-sm text-gray-600 font-medium">Current Week</div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button
-                        variant="outline"
-                        className="h-16"
-                        onClick={() => router.push('/plan')}
-                        disabled={!learningPlan}
-                    >
-                        View Learning Plan
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="h-16"
-                        onClick={() => router.push('/jobs')}
-                    >
-                        Browse Jobs
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="h-16"
-                        disabled={!learningPlan}
-                    >
-                        Detailed Progress
-                    </Button>
-                </div>
-                {/* Enhanced Analytics Section */}
+                {/* Analytics */}
                 <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <BarChart3 className="w-5 h-5 mr-2" />
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-purple-600" />
                         Your Learning Analytics
                     </h2>
                     <AnalyticsDashboard userId={user?.id} planId={learningPlan?.id} />
                 </div>
 
+                {/* Quick Actions */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <button 
+                        onClick={() => router.push('/plan')}
+                        disabled={!learningPlan}
+                        className="flex-1 py-4 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                    >
+                        <BookOpen className="w-5 h-5" />
+                        View Learning Plan
+                    </button>
+                    <button 
+                        onClick={() => router.push('/jobs')}
+                        className="flex-1 py-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                    >
+                        <Briefcase className="w-5 h-5" />
+                        Browse More Jobs
+                    </button>
+                    <button 
+                        disabled={!learningPlan}
+                        className="flex-1 py-4 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                    >
+                        <Target className="w-5 h-5" />
+                        Track Progress
+                    </button>
+                </div>
             </div>
         </div>
     )
