@@ -7,7 +7,7 @@ import Navbar from '@/components/layout/navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'iExcel - Your Career GPS',
+  title: 'Career GPS',
   description: 'AI-powered career guidance and learning plans',
 }
 

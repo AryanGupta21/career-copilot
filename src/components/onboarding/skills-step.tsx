@@ -89,7 +89,7 @@ export default function SkillsStep({ onComplete }: SkillsStepProps) {
             setShowSuggestions(true)
           }}
           onFocus={() => setShowSuggestions(true)}
-          className="mt-2 h-12"
+          className="mt-2 h-12 bg-white text-gray-900"
         />
         
         {showSuggestions && searchTerm && (
@@ -154,7 +154,7 @@ export default function SkillsStep({ onComplete }: SkillsStepProps) {
                     max="5"
                     value={skill.proficiencyLevel}
                     onChange={(e) => updateSkill(skill.id, 'proficiencyLevel', parseInt(e.target.value))}
-                    className="mt-1"
+                    className="mt-1 bg-white text-gray-900"
                   />
                   <div className="text-xs text-gray-500 mt-1">
                     1=Beginner, 3=Intermediate, 5=Expert
@@ -172,7 +172,7 @@ export default function SkillsStep({ onComplete }: SkillsStepProps) {
                     step="0.5"
                     value={skill.yearsExperience}
                     onChange={(e) => updateSkill(skill.id, 'yearsExperience', parseFloat(e.target.value))}
-                    className="mt-1"
+                    className="mt-1 bg-white text-gray-900"
                   />
                 </div>
               </div>
@@ -186,7 +186,7 @@ export default function SkillsStep({ onComplete }: SkillsStepProps) {
         <Button 
           onClick={() => onComplete(selectedSkills)}
           disabled={selectedSkills.length === 0}
-          className="bg-blue-600 hover:bg-blue-700 h-12 px-8"
+          className="bg-gray-700 hover:bg-gray-800 h-12 px-8"
         >
           Continue to AI Analysis ({selectedSkills.length} skills)
         </Button>

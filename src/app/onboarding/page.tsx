@@ -174,7 +174,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-[#f5f5f0]">
       {/* Progress Indicator */}
       <div className="max-w-4xl mx-auto pt-8 px-4">
         <div className="flex justify-center mb-8">
@@ -201,7 +201,7 @@ export default function OnboardingPage() {
       {currentStep === 'profile' && (
         <div className="max-w-2xl mx-auto px-4 pb-12">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to iExcel!</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome!</h1>
             <p className="text-gray-600">Let's get you started on your career journey</p>
           </div>
 
@@ -214,7 +214,7 @@ export default function OnboardingPage() {
                   value={profileData.fullName}
                   onChange={(e) => setProfileData(prev => ({ ...prev, fullName: e.target.value }))}
                   required
-                  className="mt-2 h-12"
+                  className="mt-2 h-12 bg-white text-gray-800"
                   placeholder="John Smith"
                 />
               </div>
@@ -226,7 +226,7 @@ export default function OnboardingPage() {
                   value={profileData.currentRole}
                   onChange={(e) => setProfileData(prev => ({ ...prev, currentRole: e.target.value }))}
                   required
-                  className="mt-2 h-12"
+                  className="mt-2 h-12  bg-white text-gray-800"
                   placeholder="e.g. Junior Developer, Student, Career Changer"
                 />
               </div>
@@ -238,7 +238,7 @@ export default function OnboardingPage() {
                   value={profileData.targetRole}
                   onChange={(e) => setProfileData(prev => ({ ...prev, targetRole: e.target.value }))}
                   required
-                  className="mt-2 h-12"
+                  className="mt-2 h-12  bg-white text-gray-800"
                   placeholder="e.g. Senior Full-Stack Developer, Data Scientist"
                 />
               </div>
@@ -249,7 +249,7 @@ export default function OnboardingPage() {
                   id="location"
                   value={profileData.location}
                   onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
-                  className="mt-2 h-12"
+                  className="mt-2 h-12  bg-white text-gray-800"
                   placeholder="e.g. New York, NY or Remote"
                 />
               </div>
@@ -264,7 +264,7 @@ export default function OnboardingPage() {
                   value={profileData.studyHours}
                   onChange={(e) => setProfileData(prev => ({ ...prev, studyHours: parseInt(e.target.value) }))}
                   required
-                  className="mt-2 h-12"
+                  className="mt-2 h-12  bg-white text-gray-800"
                 />
                 <p className="text-sm text-gray-500 mt-2">
                   How many hours can you dedicate to learning each week?
@@ -273,7 +273,7 @@ export default function OnboardingPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg" 
+                className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg" 
                 disabled={saving}
               >
                 {saving ? 'Saving...' : 'Next: Add Your Skills'}
