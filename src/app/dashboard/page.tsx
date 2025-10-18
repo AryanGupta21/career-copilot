@@ -228,9 +228,9 @@ export default function Dashboard() {
         <div className="min-h-screen bg-[#f5f5f0]">
             <div className="max-w-7xl mx-auto p-6 sm:p-8">
                 {/* Hero Header - Combines greeting and key stats */}
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+                <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 text-black relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10 blur-3xl"></div>
                     
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-6">
@@ -238,13 +238,13 @@ export default function Dashboard() {
                                 <h1 className="text-4xl font-bold mb-2">
                                     Welcome back, {profile?.full_name?.split(' ')[0]}! 👋
                                 </h1>
-                                <p className="text-gray-300 text-lg">
-                                    You're on track to becoming a <span className="text-blue-400 font-semibold">{profile?.target_role}</span>
+                                <p className="text-gray-700 text-lg">
+                                    You're on track to becoming a <span className="text-gray-500 font-semibold">{profile?.target_role}</span>
                                 </p>
                             </div>
                             <button 
                                 onClick={() => router.push('/plan')}
-                                className="px-6 py-3 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
+                                className="px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-100 transition-colors"
                             >
                                 View Full Plan
                             </button>
@@ -258,7 +258,7 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold">{overallProgress}%</div>
-                                    <div className="text-gray-400 text-sm">Overall Progress</div>
+                                    <div className="text-gray-700 text-sm">Overall Progress</div>
                                 </div>
                             </div>
 
@@ -268,7 +268,7 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold">{studyHoursThisWeek}h</div>
-                                    <div className="text-gray-400 text-sm">This Week</div>
+                                    <div className="text-gray-700 text-sm">This Week</div>
                                 </div>
                             </div>
 
@@ -278,7 +278,7 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold">{completedTasks}</div>
-                                    <div className="text-gray-400 text-sm">Tasks Done</div>
+                                    <div className="text-gray-700 text-sm">Tasks Done</div>
                                 </div>
                             </div>
 
@@ -288,7 +288,7 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <div className="text-3xl font-bold">{skillsCount}</div>
-                                    <div className="text-gray-400 text-sm">Skills Mastered</div>
+                                    <div className="text-gray-700 text-sm">Skills Mastered</div>
                                 </div>
                             </div>
                         </div>
@@ -296,8 +296,8 @@ export default function Dashboard() {
                         {/* Progress Bar */}
                         <div className="mt-6">
                             <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-300">Learning Journey</span>
-                                <span className="text-gray-300">Week {currentWeek} of {learningPlan?.duration_weeks || 12}</span>
+                                <span className="text-gray-700">Learning Journey</span>
+                                <span className="text-gray-700">Week {currentWeek} of {learningPlan?.duration_weeks || 12}</span>
                             </div>
                             <div className="w-full bg-gray-700 rounded-full h-3">
                                 <div
@@ -316,7 +316,6 @@ export default function Dashboard() {
                     <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <Zap className="w-5 h-5 text-yellow-500" />
                                 Your Next Actions
                             </h2>
                             <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">
@@ -363,7 +362,7 @@ export default function Dashboard() {
 
                         <button 
                             onClick={() => router.push('/plan')}
-                            className="w-full mt-4 py-3 text-gray-600 hover:text-gray-900 font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-50 rounded-lg transition-colors"
+                            className="w-full mt-4 py-3 text-gray-700 hover:text-gray-900 font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-50 rounded-lg transition-colors"
                         >
                             View All Tasks
                             <ArrowRight className="w-4 h-4" />
@@ -371,7 +370,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Study Streak - Compact card */}
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-xl border border-orange-200 p-6">
+                    <div className="bg-white rounded-2xl shadow-xl p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-semibold text-gray-900">Study Streak</h3>
                             <Flame className="w-6 h-6 text-orange-500" />
@@ -468,7 +467,7 @@ export default function Dashboard() {
 
                                     <button 
                                         onClick={() => job.url !== '#' && window.open(job.url, '_blank')}
-                                        className="w-full py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2"
+                                        className="w-full py-2 bg-black hover:bg-gray-700 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2"
                                     >
                                         View Details
                                         <ExternalLink className="w-3 h-3" />
@@ -505,28 +504,28 @@ export default function Dashboard() {
                             </div>
                             <button
                                 onClick={() => router.push('/plan')}
-                                className="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors"
+                                className="px-5 py-2.5 bg-black hover:bg-gray-700 text-white font-medium rounded-lg transition-colors"
                             >
                                 View Full Plan
                             </button>
                         </div>
 
                         <div className="grid md:grid-cols-4 gap-4">
-                            <div className="text-center bg-blue-50 rounded-xl p-4 border border-blue-100">
-                                <div className="text-3xl font-bold text-blue-600 mb-1">{learningPlan.duration_weeks}</div>
-                                <div className="text-sm text-gray-600 font-medium">Weeks</div>
+                            <div className="text-center bg-black rounded-xl p-4 border border-blue-100">
+                                <div className="text-3xl font-bold text-white mb-1">{learningPlan.duration_weeks}</div>
+                                <div className="text-sm text-white font-medium">Weeks</div>
                             </div>
-                            <div className="text-center bg-green-50 rounded-xl p-4 border border-green-100">
-                                <div className="text-3xl font-bold text-green-600 mb-1">{learningPlan.total_hours}</div>
-                                <div className="text-sm text-gray-600 font-medium">Total Hours</div>
+                            <div className="text-center bg-black rounded-xl p-4 border border-green-100">
+                                <div className="text-3xl font-bold text-white mb-1">{learningPlan.total_hours}</div>
+                                <div className="text-sm text-white font-medium">Total Hours</div>
                             </div>
-                            <div className="text-center bg-purple-50 rounded-xl p-4 border border-purple-100">
-                                <div className="text-3xl font-bold text-purple-600 mb-1">{completedTasks}</div>
-                                <div className="text-sm text-gray-600 font-medium">Tasks Done</div>
+                            <div className="text-center bg-black rounded-xl p-4 border border-purple-100">
+                                <div className="text-3xl font-bold text-white mb-1">{completedTasks}</div>
+                                <div className="text-sm text-white font-medium">Tasks Done</div>
                             </div>
-                            <div className="text-center bg-orange-50 rounded-xl p-4 border border-orange-100">
-                                <div className="text-3xl font-bold text-orange-600 mb-1">{currentWeek}</div>
-                                <div className="text-sm text-gray-600 font-medium">Current Week</div>
+                            <div className="text-center bg-black rounded-xl p-4 border border-orange-100">
+                                <div className="text-3xl font-bold text-white mb-1">{currentWeek}</div>
+                                <div className="text-sm text-white font-medium">Current Week</div>
                             </div>
                         </div>
                     </div>
@@ -546,21 +545,21 @@ export default function Dashboard() {
                     <button 
                         onClick={() => router.push('/plan')}
                         disabled={!learningPlan}
-                        className="flex-1 py-4 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                        className="flex-1 py-4 bg-black text-white disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                     >
                         <BookOpen className="w-5 h-5" />
                         View Learning Plan
                     </button>
                     <button 
                         onClick={() => router.push('/jobs')}
-                        className="flex-1 py-4 bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                        className="flex-1 py-4 bg-black text-white  border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                     >
                         <Briefcase className="w-5 h-5" />
                         Browse More Jobs
                     </button>
                     <button 
                         disabled={!learningPlan}
-                        className="flex-1 py-4 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                        className="flex-1 py-4 bg-black text-white  disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-gray-200 hover:border-gray-300 rounded-xl font-medium text-gray-700 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                     >
                         <Target className="w-5 h-5" />
                         Track Progress

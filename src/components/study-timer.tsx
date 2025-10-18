@@ -86,7 +86,7 @@ export default function StudyTimer({ userId, planId, taskId, skillName, onSessio
   return (
     <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border">
       <div className="flex items-center space-x-2">
-        <Clock className="w-4 h-4 text-blue-600" />
+        <Clock className="w-4 h-4 text-black" />
         <span className="font-mono text-lg font-semibold text-blue-900">
           {formatTime(time)}
         </span>

@@ -151,7 +151,7 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f0]">
       {/* Top Navigation Bar */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg sticky top-0 z-10">
+      <div className="bg-white text-gray-900 shadow-lg sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -159,12 +159,11 @@ export default function JobsPage() {
                 onClick={() => router.push('/dashboard')}
                 className="text-gray-300 hover:text-white flex items-center gap-2 transition-colors"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Dashboard</span>
+                <ArrowLeft className="w-4 h-4 text-black" />
+                <span className="font-medium text-black">Dashboard</span>
               </button>
               <div className="h-6 w-px bg-gray-600"></div>
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-blue-400" />
                 <h1 className="text-xl font-bold">Job Search</h1>
               </div>
             </div>
@@ -180,7 +179,7 @@ export default function JobsPage() {
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Hero Section with Search - GREY GRADIENT */}
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl p-8 mb-6 text-white relative overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6 text-black relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-700 rounded-full opacity-10 blur-3xl"></div>
           
@@ -188,11 +187,11 @@ export default function JobsPage() {
             <div className="max-w-3xl mx-auto text-center mb-6">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">AI-Powered Job Matching</span>
+                <span className="text-sm font-medium text-black">AI-Powered Job Matching</span>
               </div>
               <h2 className="text-4xl font-bold mb-3">Find Your Dream Job</h2>
-              <p className="text-gray-300 text-lg">
-                We match you with opportunities that fit your <span className="font-semibold text-white">{userSkills.length} skills</span>
+              <p className="text-black text-lg">
+                We match you with opportunities that fit your <span className="font-semibold text-gray-600">{userSkills.length} skills</span>
               </p>
             </div>
 
@@ -489,7 +488,7 @@ export default function JobsPage() {
                       href={job.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
+                      className="px-4 py-2 bg-black hover:bg-gray-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
                     >
                       Apply Now
                       <ExternalLink className="w-4 h-4" />

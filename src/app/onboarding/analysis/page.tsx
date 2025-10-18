@@ -208,7 +208,7 @@ const saveToDatabase = async (userId: string, plan: LearningPlan, skills: any[],
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#f5f5f0] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Analysis Failed</h2>
@@ -223,7 +223,7 @@ const saveToDatabase = async (userId: string, plan: LearningPlan, skills: any[],
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#f5f5f0] flex items-center justify-center p-4">
         <div className="max-w-2xl w-full bg-white rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -249,7 +249,7 @@ const saveToDatabase = async (userId: string, plan: LearningPlan, skills: any[],
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[#f5f5f0] py-8">
       <div className="max-w-4xl mx-auto p-6">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -293,17 +293,17 @@ const saveToDatabase = async (userId: string, plan: LearningPlan, skills: any[],
             <p className="text-gray-600 mb-4">{learningPlan.overview}</p>
             
             <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-blue-50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-blue-600">{learningPlan.duration}</div>
-                <div className="text-sm text-gray-600">Weeks</div>
+              <div className="bg-black rounded-lg p-4">
+                <div className="text-2xl font-bold text-white">{learningPlan.duration}</div>
+                <div className="text-sm text-white">Weeks</div>
               </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-green-600">{learningPlan.totalHours}</div>
-                <div className="text-sm text-gray-600">Total Hours</div>
+              <div className="bg-black rounded-lg p-4">
+                <div className="text-2xl font-bold text-white">{learningPlan.totalHours}</div>
+                <div className="text-sm text-white">Total Hours</div>
               </div>
-              <div className="bg-purple-50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-purple-600">{skillGaps.length}</div>
-                <div className="text-sm text-gray-600">Skill Gaps</div>
+              <div className="bg-black rounded-lg p-4">
+                <div className="text-2xl font-bold text-white">{skillGaps.length}</div>
+                <div className="text-sm text-white">Skill Gaps</div>
               </div>
             </div>
           </div>
@@ -313,7 +313,7 @@ const saveToDatabase = async (userId: string, plan: LearningPlan, skills: any[],
           <Button 
             size="lg" 
             onClick={() => router.push('/dashboard')}
-            className="bg-blue-600 hover:bg-blue-700 h-12 px-8"
+            className="bg-black h-12 px-8"
           >
             Start Your Learning Journey 🚀
           </Button>

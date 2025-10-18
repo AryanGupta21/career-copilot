@@ -289,34 +289,34 @@ export default function PlanPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f0] flex flex-col">
       {/* Top Bar */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white px-6 py-4 shadow-lg">
+      <div className="bg-white text-black px-6 py-4 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-white flex items-center gap-1"
+              className="text-black flex items-center gap-1"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4 text-black" />
               Dashboard
             </button>
             <div className="h-6 w-px bg-gray-600"></div>
             <div>
               <h1 className="text-xl font-bold">{plan.title || 'Learning Plan'}</h1>
-              <p className="text-xs text-gray-400">Week {currentWeek} of {plan.duration_weeks}</p>
+              <p className="text-xs text-gray-700">Week {currentWeek} of {plan.duration_weeks}</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-right">
               <div className="text-2xl font-bold">{overallProgress}%</div>
-              <div className="text-xs text-gray-400">Overall Progress</div>
+              <div className="text-xs text-black">Overall Progress</div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">{completedTasks.length}/{totalTasks}</div>
-              <div className="text-xs text-gray-400">Tasks Complete</div>
+              <div className="text-xs text-black">Tasks Complete</div>
             </div>
             <button
               onClick={() => router.push('/jobs')}
-              className="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 font-medium text-sm"
+              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-700 font-medium text-sm"
             >
               Browse Jobs
             </button>
